@@ -3,6 +3,8 @@ import React, { Component } from 'react';
 import Aux from '../../HOC/_Aux';
 import Burger from '../../Components/Burger/Burger';
 import BuildControls from '../../Components/Burger/BuildControls/BuildControls';
+import Modal from '../../Components/UI/Modal/Modal';
+import OrderSummary from '../../Components/Burger/OrderSummary/OrderSummary';
 
 const INGREDIENT_PRICES = {
 	salad: 0.7,
@@ -20,7 +22,8 @@ class BurgerBuilder extends Component {
 			bacon: 0
 		},
 		totalPrice: 4.50,
-		orderButtonDisabled: false
+		orderButtonDisabled: true,
+		orderButtonClicked: false
 	}
 	addIngredientHandler = (type) => {
 		const oldCount =  this.state.ingredients[type];
@@ -57,8 +60,15 @@ class BurgerBuilder extends Component {
 			})
 			.reduce((sum, el) => sum + el, 0);
 			// console.log(sum);
-			this.setState({ orderButtonDisabled : sum > 0})
+			this.setState({ orderButtonDisabled : sum < 0})
 	}
+	orderButtonClickHandler = () => {
+		this.setState({ orderButtonClicked : true })
+	}
+	orderButtonCancelHandler = () => {
+		this.setState({ orderButtonClicked : false })
+	}
+
 
 	render() { 
 		/** logic for disabling button in case of no ingredients */
@@ -71,13 +81,19 @@ class BurgerBuilder extends Component {
 		// console.log(disabledInfo)
 		return ( 
 			<Aux>
+				<Modal show={this.state.orderButtonClicked} modalClosed={this.orderButtonCancelHandler}>
+					<OrderSummary ingredients={this.state.ingredients}/>
+				</Modal>
+				
 				<Burger ingredients={this.state.ingredients}/>
+				
 				<BuildControls 
 					ingredientAdded={this.addIngredientHandler}
 					ingredientRemoved={this.removeIngredientHandler}
 					disabled={disabledInfo}
 					orderBtnState={this.state.orderButtonDisabled}
 					price={this.state.totalPrice}
+					orderBtnClicked={this.orderButtonClickHandler}
 				/>
 			</Aux>
 		);
