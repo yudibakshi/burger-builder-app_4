@@ -19,7 +19,8 @@ class BurgerBuilder extends Component {
 			cheese: 0,
 			bacon: 0
 		},
-		totalPrice: 4.50
+		totalPrice: 4.50,
+		orderButtonDisabled: false
 	}
 	addIngredientHandler = (type) => {
 		const oldCount =  this.state.ingredients[type];
@@ -32,6 +33,7 @@ class BurgerBuilder extends Component {
 		const oldPrice = this.state.totalPrice;
 		const newPrice = oldPrice + priceAddition;
 		this.setState({ ingredients: updatedIngredients, totalPrice:newPrice });
+		this.updateOrderBtnState(updatedIngredients);
 	}
 	removeIngredientHandler = (type) => {
 		const oldCount =  this.state.ingredients[type];
@@ -44,7 +46,18 @@ class BurgerBuilder extends Component {
 		const priceDeletion = INGREDIENT_PRICES[type];
 		const oldPrice = this.state.totalPrice;
 		const newPrice = oldPrice - priceDeletion;
-		this.setState({ ingredients: updatedIngredients, totalPrice:newPrice })
+		this.setState({ ingredients: updatedIngredients, totalPrice:newPrice });
+		this.updateOrderBtnState(updatedIngredients);
+	}
+	updateOrderBtnState = (ingredients) => {
+		/** setState - updated ingredients needd to check */
+		const sum = Object.keys(ingredients)
+			.map(igKey => {
+				return ingredients[igKey];
+			})
+			.reduce((sum, el) => sum + el, 0);
+			// console.log(sum);
+			this.setState({ orderButtonDisabled : sum > 0})
 	}
 
 	render() { 
@@ -63,6 +76,7 @@ class BurgerBuilder extends Component {
 					ingredientAdded={this.addIngredientHandler}
 					ingredientRemoved={this.removeIngredientHandler}
 					disabled={disabledInfo}
+					orderBtnState={this.state.orderButtonDisabled}
 					price={this.state.totalPrice}
 				/>
 			</Aux>
