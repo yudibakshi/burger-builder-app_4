@@ -15,3 +15,7 @@ const drawerToggle = (props) => {
 }
  
 export default drawerToggle;
+
+/** TODO
+ * clicking on the toggle elements should transition the sidedrawer closed
+ */

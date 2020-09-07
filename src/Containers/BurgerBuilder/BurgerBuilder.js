@@ -27,10 +27,11 @@ class BurgerBuilder extends Component {
 	}
 
 	componentDidMount() {
+		// console.log(this.props);
 		axios.get('https://react-my-burger-7eff5.firebaseio.com/ingredients.json')
 			.then(response => {
 				this.setState({ ingredients: response.data })
-				console.log(response.data);
+				// console.log(response.data);
 			})
 			.catch(error => {
 				this.setState({ error: true })
@@ -73,7 +74,7 @@ class BurgerBuilder extends Component {
 				return ingredients[igKey];
 			})
 			.reduce((sum, el) => sum + el, 0);
-			console.log(sum);
+			// console.log(sum);
 			this.setState({ orderButtonDisabled : sum <= 0 })
 	}
 	orderButtonClickHandler = () => {
@@ -84,33 +85,23 @@ class BurgerBuilder extends Component {
 	}
 	purchaseContinueHandler = () => {
 		// alert('You Continued');
-		this.setState({ loading: true });
-
-		const order = {
-			ingredients: this.state.ingredients,
-			price: this.state.totalPrice,
-			customer: {
-				name: 'Yudi Bakshi',
-				address: {
-					street: 'testSreet 1',
-					zipCode: 123244,
-					country: 'India'
-				},
-				email: 'test@test.com'
-			},
-			deliveryMethod: 'fastest'
+		// this.props.history.push('/checkout');
+		/** passing data to checkout component with query params  */
+		const queryParams = [];
+		for(let i in this.state.ingredients) { // NOTE
+			queryParams.push(encodeURIComponent(i) + '=' + encodeURIComponent(this.state.ingredients[i]))
 		}
-		axios.post('/orders.json', order)
-			.then(res => {
-				this.setState({ loading: false, orderButtonClicked: false });
-				console.log(res);
-				/* TODO implement a success message from server with transaction id for the cutstomer
-				NOTE how do you access configure a reponse from a Firebase sent to the client*/ 
-			})
-			.catch(error => {
-				this.setState({ loading: false, orderButtonClicked: false });
-				console.log(error)
-			});
+		/* REVIEW find a another alternative to pass the 
+			totalPrice data to checkout componenet instead of 
+			passing it in search params TODO
+		*/
+		queryParams.push('price=' + this.state.totalPrice);  
+		// console.log(queryParams);
+		const queryString = queryParams.join('&');
+		this.props.history.push({
+			pathname: '/checkout',
+			search: '?' + queryString
+		});
 	}
 
 	render() { 
@@ -124,7 +115,7 @@ class BurgerBuilder extends Component {
 		// console.log(disabledInfo)
 		let orderSummary = null;
 	
-		let burger = this.state.error ? <p style={{textAlign:'center'}}>Ingredients can't be loaded... :(</p> : <Loader />;
+		let burger = this.state.error ? <p style={{textAlign:'center'}}>Ingredients can't be loaded...</p> : <Loader />;
 		if(this.state.ingredients) {
 			burger = (
 				<Aux>
@@ -167,3 +158,8 @@ class BurgerBuilder extends Component {
 // export default BurgerBuilder;
 // with global error handler
 export default withErrorHandler(BurgerBuilder, axios);
+
+
+/** TODO
+ *  orderSummary & Modal componentDidUpdate when adding building a burger ...optimize
+ */
